@@ -51,16 +51,22 @@ combinedf["AGE_H"] = combinedf["AGE_H"].replace({99: np.nan})
 combinedf["SEAT_H"] = combinedf["SEAT_H"].replace({99: np.nan})
 combinedf["LOCATN"] = combinedf["LOCATN"].replace({99: np.nan})
 combinedf["ACTION"] = combinedf["ACTION"].replace({99: np.nan})
+combinedf["DAM_AREA"] = combinedf["DAM_AREA"].replace({9: np.nan})
+combinedf["SPEC_USE"] = combinedf["SPEC_USE"].replace({99: np.nan})
+combinedf["EMCY_USE"] = combinedf["EMCY_USE"].replace({9: np.nan})
+combinedf["TOWED"] = combinedf["TOWED"].replace({9: np.nan})
+combinedf["DR_PRES"] = combinedf["DR_PRES"].replace({9: np.nan})
+combinedf["SPEEDREL"] = combinedf["SPEEDREL"].replace({9: np.nan})
+combinedf["IMPACT_H"] = combinedf["IMPACT_H"].replace({99: np.nan})
 
 
-
-ordinal_features = ["INJSEV_H","EJECT_I"]
+ordinal_features = ["INJSEV_H","EJECT_I","VEH_SEV", "PCRASH_3", "PCRASH4", "PCRASH5", "ROLLOVER","CARGO_TYP","MXVSEV_I"]
 # count ( there is relationship)
 
-categorial_features = ["SEX_H","PERALC_H","PER_TYPE","HOSPITAL","PER_ALCH","REST_SYS","PER_DRUG","IMPAIRMT","SAF_EQMT","AIRBAG"]
+categorial_features = ["SEX_H","PERALC_H","PER_TYPE","HOSPITAL","PER_ALCH","REST_SYS","PER_DRUG","IMPAIRMT","SAF_EQMT","AIRBAG", "PCRASH_2","DAM_AREA" , "MAKE", "BODY_TYPH", "SPEC_USE" , "JACKNIFE", "FIRE", "HITRUN_I" , "EMCY_USE", "TRAILER", "TOWED", "ACC-TYPE", "DR_PRES" , "SPEEDREL", "IMPACT_H", "V_ALCH_I", "V_EVNT_H"]
 # no relationshiop ( like yes or no )
 
-numerical_features = ["AGE","SEAT_POS","LOCATN","ACTION","STR_VEH"]
+numerical_features = ["AGE","SEAT_POS","LOCATN","ACTION","STR_VEH","WEIGHT", "MDLYR_I", "NUMOCCS", "SPEED", "NUMINJ_I"]
 # counting 
 
 
