@@ -4,20 +4,117 @@ import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectFromModel
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
+from sklearn.impute import SimpleImputer
+
 
 # PREPROCESSING
 # Load dataset from CSV file
-df = pd.read_csv("ARASANFORPRESIDENT/train_vehicle.csv")
-df2 = pd.read_csv("ARASANFORPRESIDENT/train_person.csv")
+df = pd.read_csv('C:/Users/user/OneDrive/Desktop/Datathon/ARASANFORPRESIDENT/train_person.csv')
+df2 = pd.read_csv('C:/Users/user/OneDrive/Desktop/Datathon/ARASANFORPRESIDENT/train_vehicle.csv')
 
 combinedf = pd.merge(df, df2, on = "CASENUM", how = "outer")
 
 # Drop unnecessary columns (modify as needed)
-combinedf = combinedf.drop(columns=["VIN", "C_ID_NO", "REGION", "VEHNO", "PJ", "CASENUM", "PERNO", "PSU", "AGE", "SEX", "EJECT", "VEH_ALCH", "NUM_INJV", "MODEL_YR", "VIOLATN", "MAX_VSEV", "HIT_RUN", "P_CRASH1", "IMPACT", "VEH_ROLE", "BODY_TYP", "MHENUM"])
-
+combinedf = combinedf.drop(columns=["VIN", "C_ID_NO", "REGION_x", "VEHNO_x", "PJ_x", "CASENUM", "PERNO", "PSU_x", "AGE", "SEX", "EJECT", "VEH_ALCH", "NUM_INJV", "MODEL_YR", "VIOLATN", "MAX_VSEV", "HIT_RUN", "P_CRASH1", "IMPACT", "VEH_ROLE", "BODY_TYP", "MHENUM", "FACTOR", "DRMAN_AV", "DR_DSTRD","AXLES","OCC_INVL","VROLE_I","VLTN_I"])
+ 
 # NOTE : NO MISSING VALUES TO FILL
 # Features is represented by numbers already
 
 #Deciding x and y axis
-x = 
-y = df("INJSEV_H")
+X = combinedf.drop(columns=["INJSEV_H"])
+y = combinedf["INJSEV_H"]
+
+
+
+# SCALLING
+
+#for null statement
+combinedf["PER_TYPE"] = combinedf["PER_TYPE"].replace({8: np.nan, 9: np.nan})
+combinedf["HOSPITAL"] = combinedf["HOSPITAL"].replace({9: np.nan})
+combinedf["PERALC_H"] = combinedf["PERALC_H"].replace({9: np.nan})
+combinedf["PER_ALCH"] = combinedf["PER_ALCH"].replace({9: np.nan})
+combinedf["REST_SYS"] = combinedf["REST_SYS"].replace({9: np.nan})
+combinedf["PER_DRUG"] = combinedf["PER_DRUG"].replace({9: np.nan})
+combinedf["IMPAIRMT"] = combinedf["IMPAIRMT"].replace({9: np.nan})
+combinedf["SAF_EQMT"] = combinedf["SAF_EQMT"].replace({9: np.nan})
+combinedf["AIRBAG"] = combinedf["AIRBAG"].replace({9: np.nan})
+combinedf["AGE_H"] = combinedf["AGE_H"].replace({99: np.nan})
+combinedf["SEAT_H"] = combinedf["SEAT_H"].replace({99: np.nan})
+combinedf["LOCATN"] = combinedf["LOCATN"].replace({99: np.nan})
+combinedf["ACTION"] = combinedf["ACTION"].replace({99: np.nan})
+
+
+
+ordinal_features = ["INJSEV_H","EJECT_I"]
+# count ( there is relationship)
+
+categorial_features = ["SEX_H","PERALC_H","PER_TYPE","HOSPITAL","PER_ALCH","REST_SYS","PER_DRUG","IMPAIRMT","SAF_EQMT","AIRBAG"]
+# no relationshiop ( like yes or no )
+
+numerical_features = ["AGE","SEAT_POS","LOCATN","ACTION","STR_VEH"]
+# counting 
+
+
+# ENCODING
+
+# Numerical pipeline (scaling with imputation for missing values)
+numerical_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='mean')),       # Fill missing values with mean
+    ('scaler', StandardScaler())                       # Scale features to 0 mean, 1 std
+])
+
+# Ordinal pipeline (treat ordinal values as ordered integers)
+ordinal_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('encoder', OrdinalEncoder()),                     # Keeps ordinal nature
+    ('scaler', StandardScaler())                       # Optional: scale ordinal values too
+])
+
+# Categorical pipeline (one-hot encode)
+categorical_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('encoder', OneHotEncoder(handle_unknown='ignore'))  # Encode into binary columns
+])
+
+preprocessor = ColumnTransformer(transformers=[
+    ('num', numerical_pipeline, numerical_features),
+    ('ord', ordinal_pipeline, ordinal_features),
+    ('cat', categorical_pipeline, categorial_features)
+])
+
+clf = Pipeline([
+    ('preprocessor', preprocessor),
+    ('classifier', RandomForestClassifier(random_state=42))
+])
+
+
+
+
+#split the data ^^^ the x and y 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train a Random Forest to get feature importances ( train a random forest on the data X and Y ) 
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)
+
+# Use SelectFromModel to select important features ( train random forest to identify important features ) 
+selector = SelectFromModel(model, prefit=True) # for individual trees 
+X_train_selected = selector.transform(X_train)
+X_test_selected = selector.transform(X_test)
+
+# Train a new model with selected features ( train it again using the already trained data )
+model_selected = RandomForestClassifier(random_state=42) # to combine all the individual trees 
+model_selected.fit(X_train_selected, y_train)
+
+# Evaluate the model
+accuracy = model_selected.score(X_test_selected, y_test)
+print(f"Accuracy with selected features: {accuracy}")
