@@ -21,7 +21,7 @@
   - Age
   - Number of Motor Vehicle Striking Non-Motorist
     
-  -------- for imputed details ( its only important if the data for the imputed is insufficient ) -------
+  -------- for imputed details ( its only important if the data for the imputed is insufficient which in this case is kinda true , for most data using imputed data would be more precise ) -------
   - Imputed Ejection ! ( already contained )
   - Imputed Age ! ( already contained )
   - Imputed Sex ! ( already contained )
