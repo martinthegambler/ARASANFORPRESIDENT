@@ -38,15 +38,21 @@ y = combinedf["INJSEV_H"]
 # SCALLING
 
 #for null statement
-combinedf["PER_TYPE"] = combinedf["PER_TYPE"].replace({8: np.nan, 9: np.nan})
+combinedf["PERALC_H"] = combinedf["PERALC_H"].replace({8: np.nan, 9: np.nan})
 combinedf["HOSPITAL"] = combinedf["HOSPITAL"].replace({9: np.nan})
-combinedf["PERALC_H"] = combinedf["PERALC_H"].replace({9: np.nan})
+combinedf["PER_TYPE"] = combinedf["PER_TYPE"].replace({9: np.nan})
 combinedf["PER_ALCH"] = combinedf["PER_ALCH"].replace({9: np.nan})
-combinedf["REST_SYS"] = combinedf["REST_SYS"].replace({9: np.nan})
-combinedf["PER_DRUG"] = combinedf["PER_DRUG"].replace({9: np.nan})
+combinedf["REST_SYS"] = combinedf["REST_SYS"].replace({8: np.nan, 9: np.nan})
+combinedf["PER_DRUG"] = combinedf["PER_DRUG"].replace({97: np.nan, 98: np.nan, 99: np.nan})
 combinedf["IMPAIRMT"] = combinedf["IMPAIRMT"].replace({9: np.nan})
-combinedf["SAF_EQMT"] = combinedf["SAF_EQMT"].replace({9: np.nan})
-combinedf["AIRBAG"] = combinedf["AIRBAG"].replace({9: np.nan})
+combinedf["SAF_EQMT"] = combinedf["SAF_EQMT"].replace({8: np.nan, 9: np.nan})
+combinedf["VEH_SEV"] = combinedf["VEH_SEV"].replace({9: np.nan})
+combinedf["AIRBAG"] = combinedf["AIRBAG"].replace({8: np.nan, 9: np.nan})
+combinedf["PCRASH_3"] = combinedf["PCRASH_3"].replace({98: np.nan , 99: np.nan})
+combinedf["PCRASH4"] = combinedf["PCRASH4"].replace({9: np.nan})
+combinedf["PCRASH5"] = combinedf["PCRASH5"].replace({99: np.nan})
+combinedf["ROLLOVER"] = combinedf["ROLLOVER"].replace({99: np.nan})
+combinedf["CARGO_TYP"] = combinedf["CARGO_TYP"].replace({98: np.nan, 99: np.nan})
 combinedf["AGE_H"] = combinedf["AGE_H"].replace({99: np.nan})
 combinedf["SEAT_H"] = combinedf["SEAT_H"].replace({99: np.nan})
 combinedf["LOCATN"] = combinedf["LOCATN"].replace({99: np.nan})
@@ -60,17 +66,20 @@ combinedf["SPEEDREL"] = combinedf["SPEEDREL"].replace({9: np.nan})
 combinedf["IMPACT_H"] = combinedf["IMPACT_H"].replace({99: np.nan})
 
 
+
 ordinal_features = ["INJSEV_H","EJECT_I","VEH_SEV", "PCRASH_3", "PCRASH4", "PCRASH5", "ROLLOVER","CARGO_TYP","MXVSEV_I"]
 # count ( there is relationship)
 
-categorial_features = ["SEX_H","PERALC_H","PER_TYPE","HOSPITAL","PER_ALCH","REST_SYS","PER_DRUG","IMPAIRMT","SAF_EQMT","AIRBAG", "PCRASH_2","DAM_AREA" , "MAKE", "BODY_TYPH", "SPEC_USE" , "JACKNIFE", "FIRE", "HITRUN_I" , "EMCY_USE", "TRAILER", "TOWED", "ACC-TYPE", "DR_PRES" , "SPEEDREL", "IMPACT_H", "V_ALCH_I", "V_EVNT_H"]
+categorial_features = ["SEX_H","PERALC_H","PER_TYPE","HOSPITAL","PER_ALCH","REST_SYS","PER_DRUG","IMPAIRMT","SAF_EQMT","AIRBAG","ACTION","STR_VEH","PCRASH_2","DAM_AREA" , "MAKE", "BODY_TYPH", "SPEC_USE" , "JACKNIFE", "FIRE", "HITRUN_I" , "EMCY_USE", "TRAILER", "TOWED", "ACC-TYPE", "DR_PRES" , "SPEEDREL", "IMPACT_H", "V_ALCH_I", "V_EVNT_H"]
 # no relationshiop ( like yes or no )
 
-numerical_features = ["AGE","SEAT_POS","LOCATN","ACTION","STR_VEH","WEIGHT", "MDLYR_I", "NUMOCCS", "SPEED", "NUMINJ_I"]
+numerical_features = ["AGE_H","SEAT_POS","LOCATN","WEIGHT", "MDLYR_I", "NUMOCCS", "SPEED", "NUMINJ_I"]
 # counting 
 
 
-# ENCODING
+# ================================
+# PIPELINES
+# ================================
 
 # Numerical pipeline (scaling with imputation for missing values)
 numerical_pipeline = Pipeline([
@@ -97,16 +106,23 @@ preprocessor = ColumnTransformer(transformers=[
     ('cat', categorical_pipeline, categorial_features)
 ])
 
-clf = Pipeline([
-    ('preprocessor', preprocessor),
-    ('classifier', RandomForestClassifier(random_state=42))
-])
+
+# ================================
+# SPLIT & PREPROCESS DATA
+# ================================
 
 
+X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Apply preprocessing
+X_train = preprocessor.fit_transform(X_train_raw)
+X_test = preprocessor.transform(X_test_raw)
 
 
-#split the data ^^^ the x and y 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# ================================
+# FEATURE SELECTION + MODEL
+# ================================
+
 
 # Train a Random Forest to get feature importances ( train a random forest on the data X and Y ) 
 model = RandomForestClassifier(random_state=42)
