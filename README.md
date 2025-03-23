@@ -1,7 +1,30 @@
 ## Datathon - Prediction for road accidents ##
 ### Important data sets ###
 
-- Person details
+- Person details 
+  - Imputed Injury Severity
+  - Imputed Seating Postion 
+  - Person Type 
+  - Seating Position
+  - Ejection 
+  - Sex
+  - Transported to First Treatment Facility
+  - Police-Reported Alcohol Involvement
+  - Non-Motorist Location at Time of Crash
+  - Restraint System/Helmet Use
+  - Police Reported Drug Involvement
+  - Condition at Time of Crash
+  - Person's Action
+  - Safety Equipment Use
+  - Air Bag Deployed
+  - Region of the Country
+  - Age
+  - Number of Motor Vehicle Striking Non-Motorist
+  -------- for imputed details ( its only important if the data for the imputed is insufficient ) -------
+  - Imputed Ejection ! ( already contained )
+  - Imputed Age ! ( already contained )
+  - Imputed Sex ! ( already contained )
+  - Imputed Police-Reported Alcohol Involvement ! ( already contained )
   
 - Vehicle details
 Case Weight,
